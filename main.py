@@ -7,6 +7,7 @@ running = True
 pressing = False
 pointsX = []
 pointsY = []
+circleSize = 8
 
 
 py.init()
