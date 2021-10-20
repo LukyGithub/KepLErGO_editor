@@ -1,7 +1,7 @@
 import pygame as py
 lineCol = [251, 197, 49]
-scrW = 1600
-scrH = 900
+scrW = 1000
+scrH = 700
 running = True
 pressing = False
 pointsX = []
@@ -27,6 +27,13 @@ while running:
             py.draw.line(screen, lineCol, (pointsX[len(pointsX) - 1], pointsY[len(pointsY) - 1] ), (pointsX[len(pointsX) - 2], pointsY[len(pointsY) - 2]))
     elif not py.mouse.get_pressed(3)[0]:
         pressing = False
+    if py.mouse.get_pressed(3)[2]:
+        for i in range(0, len(pointsX)):
+            if(py.mouse.get_pos()[0] > pointsX[i] - 5 and py.mouse.get_pos()[0] < pointsX[i] + 5):
+                if(py.mouse.get_pos()[1] > pointsY[i] - 5 and py.mouse.get_pos()[1] < pointsY[i] + 5):
+                    print("Wery gut wetr!")
+            i = i + 1
+        
     py.display.flip()
 
 py.quit()
