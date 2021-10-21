@@ -1,4 +1,5 @@
 import pygame as py
+import gui
 
 lineCol = [251, 197, 49]
 scrW = 1000
@@ -35,7 +36,7 @@ while running:
             if(py.mouse.get_pos()[0] > pointsX[i] - 5 and py.mouse.get_pos()[0] < pointsX[i] + 5):
                 if(py.mouse.get_pos()[1] > pointsY[i] - 5 and py.mouse.get_pos()[1] < pointsY[i] + 5):
                     rect1 = py.Rect(py.mouse.get_pos()[0], py.mouse.get_pos()[1], 50, 200)
-                    py.draw.rect(screen, (0, 0, 255), rect1)
+                    gui.test()
             i = i + 1
         
     py.display.flip()
