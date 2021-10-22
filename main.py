@@ -15,12 +15,11 @@ py.init()
 
 def render():
     screen.blit(img, (0, 0))
-    if circlesX.__len__() > 0:
-        lol = 0
-        for lol in circlesX:
-            print(lol)
+    if len(circlesX) > 0:
+        for lol in range(0, len(circlesX)):
             py.draw.circle(screen, (0, 0, 255), (circlesX[lol], circlesY[lol]), circleSize)
-            lol = lol + 1
+        for i in range(0, len(circlesX) - 1):
+            py.draw.aaline(screen, (0, 125, 255), (circlesX[i], circlesY[i]), (circlesX[i + 1], circlesY[i + 1]))
     py.display.flip()
  
 
@@ -31,6 +30,13 @@ bckgrnd = py.Surface((800, 450))
 while running:
     
     for event in py.event.get():
+        if event.type == py.KEYDOWN:
+            if event.key == py.K_z:
+                try:
+                    circlesX.pop()
+                    circlesY.pop()
+                except:
+                    print("You cannot destroy objects that dont exist!")
         if event.type == py.QUIT:
             running = False
     if py.mouse.get_pressed(3)[0] and not pressing:
