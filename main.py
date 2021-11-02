@@ -1,5 +1,4 @@
 import pygame as py
-import gui
 
 lineCol = [251, 197, 49]
 scrW = 1000
@@ -8,25 +7,39 @@ running = True
 pressing = False
 pointsX = []
 pointsY = []
-circleSize = 8
-
+circleSize = 10
+circlesX = []
+circlesY = []
 
 py.init()
+
+def render():
+    screen.blit(img, (0, 0))
+    if circlesX.__len__() > 0:
+        lol = 0
+        for lol in circlesX:
+            print(lol)
+            py.draw.circle(screen, (0, 0, 255), (circlesX[lol], circlesY[lol]), circleSize)
+            lol = lol + 1
+    py.display.flip()
+ 
+
 img = py.image.load("fll2.bmp")
 screen = py.display.set_mode((scrW, scrH))
 py.display.set_caption('KepLErGO Editor')
 bckgrnd = py.Surface((800, 450))
-screen.blit(img, (0, 0))
 while running:
     
     for event in py.event.get():
         if event.type == py.QUIT:
             running = False
     if py.mouse.get_pressed(3)[0] and not pressing:
-        py.draw.circle(screen, lineCol,py.mouse.get_pos(), 10)
+        py.draw.circle(screen, lineCol,py.mouse.get_pos(), circleSize)
         pressing = True
         pointsX.append(py.mouse.get_pos()[0])
         pointsY.append(py.mouse.get_pos()[1])
+        circlesX.append(py.mouse.get_pos()[0])
+        circlesY.append(py.mouse.get_pos()[1])
         if len(pointsX) > 1:
             py.draw.aaline(screen, lineCol, (pointsX[len(pointsX) - 1], pointsY[len(pointsY) - 1] ), (pointsX[len(pointsX) - 2], pointsY[len(pointsY) - 2]))
     elif not py.mouse.get_pressed(3)[0]:
@@ -36,9 +49,7 @@ while running:
             if(py.mouse.get_pos()[0] > pointsX[i] - 5 and py.mouse.get_pos()[0] < pointsX[i] + 5):
                 if(py.mouse.get_pos()[1] > pointsY[i] - 5 and py.mouse.get_pos()[1] < pointsY[i] + 5):
                     rect1 = py.Rect(py.mouse.get_pos()[0], py.mouse.get_pos()[1], 50, 200)
-                    gui.test()
             i = i + 1
-        
-    py.display.flip()
+    render()
 
 py.quit()
