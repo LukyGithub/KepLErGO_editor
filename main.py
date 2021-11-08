@@ -18,6 +18,7 @@ circlesX = []
 circlesY = []
 rectangle = []
 texts = []
+lineSpacing = 25
 activeDot = 0
 manualAdd = False
 manualType = ""
@@ -51,7 +52,7 @@ def render():
                     text.append(font.render(splits[i], True, TextCol))
                     textRect.append(text[i].get_rect())
                 xpos = rectangle[0] + 5
-                textRect[i] = (xpos , rectangle[1] + 20 * i)
+                textRect[i] = (xpos , rectangle[1] + lineSpacing * i)
                 screen.blit(text[i], textRect[i])
         if manualAdd:
             newrect = py.Rect(scrW / 2, scrH / 2, 200, 50)
