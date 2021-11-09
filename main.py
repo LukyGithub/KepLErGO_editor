@@ -2,8 +2,10 @@ import pygame as py
 from math import sqrt
 
 MainCol = [155, 89, 182] #Color paletete
+SubCol = [50, 0, 80]
 MenuCol = [52, 152, 219]
 TextCol = [0, 0, 0]
+transparent = [0, 0, 0, 0]
 
 scrW = 1456 #Sizes
 scrH = 1008
@@ -22,6 +24,7 @@ lineSpacing = 25
 activeDot = 0
 manualAdd = False
 manualType = ""
+robotSpeed = 10
 py.init()
 
 def render():
@@ -31,6 +34,25 @@ def render():
             py.draw.circle(screen, MainCol, (circlesX[lol], circlesY[lol]), circleSize)
         for i in range(0, len(circlesX) - 1):
             py.draw.aaline(screen, MainCol, (circlesX[i], circlesY[i]), (circlesX[i + 1], circlesY[i + 1]))
+
+            calculated = [0, 0, 0, 0, 0]
+            calculated[0] = (circlesX[i] + circlesX[i + 1]) /2
+            calculated[1] = (circlesY[i] + circlesY[i + 1]) /2
+            calculated[2] = circlesX[i] - circlesX[i + 1]
+            calculated[3] = circlesY[i] - circlesY[i + 1]
+            calculated[4] = sqrt(calculated[2]**2 + calculated[3]**2)
+            lineText = font.render(str(round(calculated[4])), True, SubCol)
+            if calculated[2] > 0 or calculated[3] > 0:
+                if calculated[0] > calculated[1]:
+                    lineRect = (calculated[0], calculated[1] + 25)
+                else:
+                    lineRect = (calculated[0] + 25, calculated[1])
+            else:
+                if calculated[0] < calculated[1]:
+                    lineRect = (calculated[0], calculated[1])
+                else:
+                    lineRect = (calculated[0] - 25, calculated[1])
+            screen.blit(lineText, lineRect)
 
         if len(rectangle) > 0:
             getrect = py.Rect(rectangle[0], rectangle[1], menuWidth, menuHeight)
@@ -70,7 +92,8 @@ screen = py.display.set_mode((scrW, scrH), py.RESIZABLE)
 py.display.set_caption('KepLErGO Editor')
 bckgrnd = py.Surface((800, 450))
 font = py.font.Font('Roboto-Regular.ttf', fontSize)
-
+icon = py.image.load("icon.bmp")
+py.display.set_icon(icon)
 
 while running:
     for event in py.event.get():
