@@ -10,7 +10,7 @@ MenuCol = [52, 152, 219]
 TextCol = [0, 0, 0]
 transparent = [0, 0, 0, 0]
 
-scrW = 1456 #Sizes
+scrW = 1456 #SizesposA[0] + GetPosition(1, dir)[0]
 scrH = 1008
 menuWidth = 200
 menuHeight = 300
@@ -28,6 +28,8 @@ activeDot = 0
 manualAdd = False
 manualType = ""
 robotSpeed = 10
+showLines = False
+
 py.init()
 #print(open("editableTest.txt", 'r').read())
 def chooseDir():
@@ -38,12 +40,18 @@ def chooseDir():
     return(fileName)
 
 def export():
-    fileDir = open(chooseDir() + ".txt", "w")
-    print(fileDir)
-    for i in range(1, len(circlesX)):
-        #x = (x-109)/5.32 y = abs(y-777)/5.32
-        fileDir.write("GoTo(" + str(round((circlesX[i-1] - 109) / 5.32, 2)) + ", " + str(round(fabs(circlesY[i-1] - 777) / 5.32, 2)) + ", " + str(round((circlesX[i] - 109) / 5.32, 2)) + ", " + str(round(fabs(circlesY[i] - 109) / 5.32, 2)) + ")\n")
-        fileDir.write(texts[i] + "\n")
+    try:
+        fileDir = open(chooseDir(), "w")
+        print(fileDir)
+        fileDir.write(texts[0] + "\n")
+        for i in range(1, len(circlesX)):
+            while len(texts) - 1 < i:
+                texts.append("")
+            #x = (x-109)/5.32 y = abs(y-777)/5.32
+            fileDir.write("goto(" + str(round((circlesX[i-1] - 109) / 5.32, 2)) + ", " + str(round(fabs(circlesY[i-1] - 777) / 5.32, 2)) + ", " + str(round((circlesX[i] - 109) / 5.32, 2)) + ", " + str(round(fabs(circlesY[i] - 777) / 5.32, 2)) + ")\n")
+            fileDir.write(texts[i] + "\n")
+    except:
+        print("Please choose a directory!")
 
 def render():
     screen.blit(img, (0, 0))
@@ -59,7 +67,15 @@ def render():
             calculated[2] = circlesX[i] - circlesX[i + 1]
             calculated[3] = circlesY[i] - circlesY[i + 1]
             calculated[4] = sqrt(calculated[2]**2 + calculated[3]**2)
-            lineText = font.render(str(round(calculated[4])), True, SubCol)
+            py.draw.aaline(screen, MainCol, (circlesX[i], circlesY[i]), (circlesX[i + 1], circlesY[i + 1]))
+
+            calculated = [0, 0, 0, 0, 0]
+            calculated[0] = (circlesX[i] + circlesX[i + 1]) /2
+            calculated[1] = (circlesY[i] + circlesY[i + 1]) /2
+            calculated[2] = circlesX[i] - circlesX[i + 1]
+            calculated[3] = circlesY[i] - circlesY[i + 1]
+            calculated[4] = sqrt(calculated[2]**2 + calculated[3]**2)
+            lineText = font.render(str(round(calculated[4] / 5.32, 2)), True, SubCol)
             if calculated[2] > 0 or calculated[3] > 0:
                 if calculated[0] > calculated[1]:
                     lineRect = (calculated[0], calculated[1] + 25)
@@ -70,7 +86,8 @@ def render():
                     lineRect = (calculated[0], calculated[1])
                 else:
                     lineRect = (calculated[0] - 25, calculated[1])
-            screen.blit(lineText, lineRect)
+            if showLines:
+                screen.blit(lineText, lineRect)
 
         if len(rectangle) > 0:
             getrect = py.Rect(rectangle[0], rectangle[1], menuWidth, menuHeight)
@@ -94,12 +111,12 @@ def render():
                 xpos = rectangle[0] + 5
                 textRect[i] = (xpos , rectangle[1] + lineSpacing * i)
                 screen.blit(text[i], textRect[i])
-        if manualAdd:
-            newrect = py.Rect(scrW / 2, scrH / 2, 200, 50)
-            py.draw.rect(screen, MenuCol, newrect)
-            manualText = font.render(manualType, True, TextCol)
-            manualRect = (scrW / 2, scrH / 2)
-            screen.blit(manualText, manualRect)
+    if manualAdd:
+        newrect = py.Rect(scrW / 2, scrH / 2, 200, 50)
+        py.draw.rect(screen, MenuCol, newrect)
+        manualText = font.render(manualType, True, TextCol)
+        manualRect = (scrW / 2, scrH / 2)
+        screen.blit(manualText, manualRect)
                 
 
     py.display.flip()
@@ -132,8 +149,8 @@ while running:
                     manualType = manualType[:-1]
                 elif event.key == py.K_RETURN:
                     splices = manualType.split(', ')
-                    circlesX.append(int(splices[0]))
-                    circlesY.append(int(splices[1]))
+                    circlesX.append((int(splices[0]) * 5.32) + 109)
+                    circlesY.append(fabs(int(splices[1]) * 5.32 - 777))
                     manualAdd = False
                 else:
                     manualType += event.unicode
@@ -153,6 +170,8 @@ while running:
             if not manualAdd and not len(rectangle) > 1:
                 if event.key == py.K_e:
                     export()
+                if event.key == py.K_l:
+                    showLines = not showLines
         if event.type == py.QUIT:
             running = False
 
