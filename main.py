@@ -4,6 +4,7 @@ import tkinter.filedialog
 from math import sqrt
 from math import fabs
 
+
 MainCol = [155, 89, 182] #Color paletete
 SubCol = [50, 0, 80]
 MenuCol = [52, 152, 219]
@@ -32,16 +33,23 @@ showLines = False
 
 py.init()
 #print(open("editableTest.txt", 'r').read())
-def chooseDir():
+def createDir():
     top = tkinter.Tk()
     top.withdraw()
     fileName = tkinter.filedialog.asksaveasfilename(parent = top, filetypes=(("Text files", "*.txt"), ("Prolog files", "*.pl *.pro"), ("All files", "*.*")))
     top.destroy()
     return(fileName)
 
+def chooseDir():
+    top = tkinter.Tk()
+    top.withdraw()
+    fileName = tkinter.filedialog.askopenfilename(parent = top, filetypes=(("Text files", "*.txt"), ("Prolog files", "*.pl *.pro"), ("All files", "*.*")))
+    top.destroy()
+    return(fileName)
+
 def export():
     try:
-        fileDir = open(chooseDir(), "w")
+        fileDir = open(createDir(), "w")
         print(fileDir)
         fileDir.write(texts[0] + "\n")
         for i in range(1, len(circlesX)):
@@ -51,8 +59,33 @@ def export():
             fileDir.write("goto(" + str(round((circlesX[i-1] - 109) / 5.32, 2)) + ", " + str(round(fabs(circlesY[i-1] - 777) / 5.32, 2)) + ", " + str(round((circlesX[i] - 109) / 5.32, 2)) + ", " + str(round(fabs(circlesY[i] - 777) / 5.32, 2)) + ")\n")
             fileDir.write(texts[i] + "\n")
     except:
-        print("Please choose a directory!")
+        print("An unexpected error ocured")
 
+def load(directory):
+    for i in range(0, len(circlesX)):
+        try:
+            circlesX.pop()
+            circlesY.pop()
+            texts.pop()
+        except:
+            print("Some error occured whilst deleting existing points.")
+    textLines = open(directory, 'r')
+    textLines = textLines.read().split("\n")
+    for i in range(0, len(textLines)):
+        try:
+            if textLines[i][0] == "g":
+                subsplit = circlesX[i].replace("goto(", "")
+                subsplit = subsplit.replace(")", "")
+                subsplit = subsplit.split(", ", "")
+                circlesX.append(subsplit[0])
+                circlesY.append(subsplit[1])
+            else:
+                texts.append(textLines[i])
+        except Exception as e:
+            print(e)
+
+        
+        
 def render():
     screen.blit(img, (0, 0))
     if len(circlesX) > 0:
@@ -169,17 +202,20 @@ while running:
         if event.type == py.KEYUP:
             if not manualAdd and not len(rectangle) > 1:
                 if event.key == py.K_e:
-                    export()
+                    chooseDir()
                 if event.key == py.K_l:
                     showLines = not showLines
-            if event.key == py.K_c and not pressing and len(rectangle) < 1:
-                pressing = True
-                for i in range(0, len(circlesX)):
-                    if(py.mouse.get_pos()[0] > circlesX[i] - 5 and py.mouse.get_pos()[0] < circlesX[i] + 5):
-                        if(py.mouse.get_pos()[1] > circlesY[i] - 5 and py.mouse.get_pos()[1] < circlesY[i] + 5):
-                            activeDot = i
-                            rectangle.append(py.mouse.get_pos()[0])
-                            rectangle.append(py.mouse.get_pos()[1])
+                if event.key == py.K_c and not pressing and len(rectangle) < 1:
+                    pressing = True
+                    for i in range(0, len(circlesX)):
+                        if(py.mouse.get_pos()[0] > circlesX[i] - 5 and py.mouse.get_pos()[0] < circlesX[i] + 5):
+                            if(py.mouse.get_pos()[1] > circlesY[i] - 5 and py.mouse.get_pos()[1] < circlesY[i] + 5):
+                                activeDot = i
+                                rectangle.append(py.mouse.get_pos()[0])
+                                rectangle.append(py.mouse.get_pos()[1])
+                if event.key == py.K_m:
+                    load(chooseDir())
+            
         if event.type == py.QUIT:
             running = False
 
