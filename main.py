@@ -1,5 +1,8 @@
 import pygame as py
+import tkinter
+import tkinter.filedialog
 from math import sqrt
+from math import fabs
 
 MainCol = [155, 89, 182] #Color paletete
 SubCol = [50, 0, 80]
@@ -26,6 +29,21 @@ manualAdd = False
 manualType = ""
 robotSpeed = 10
 py.init()
+#print(open("editableTest.txt", 'r').read())
+def chooseDir():
+    top = tkinter.Tk()
+    top.withdraw()  # hide window
+    fileName = tkinter.filedialog.asksaveasfilename(parent = top, filetypes=(("Text files", "*.txt"), ("Prolog files", "*.pl *.pro"), ("All files", "*.*")))
+    top.destroy()
+    return(fileName)
+
+def export():
+    fileDir = open(chooseDir() + ".txt", "w")
+    print(fileDir)
+    for i in range(1, len(circlesX)):
+        #x = (x-109)/5.32 y = abs(y-777)/5.32
+        fileDir.write("GoTo(" + str(round((circlesX[i-1] - 109) / 5.32, 2)) + ", " + str(round(fabs(circlesY[i-1] - 777) / 5.32, 2)) + ", " + str(round((circlesX[i] - 109) / 5.32, 2)) + ", " + str(round(fabs(circlesY[i] - 109) / 5.32, 2)) + ")\n")
+        fileDir.write(texts[i] + "\n")
 
 def render():
     screen.blit(img, (0, 0))
@@ -59,11 +77,11 @@ def render():
             py.draw.rect(screen, MenuCol, getrect)
             splits = ""
             if len(texts) >= activeDot + 1:
-                splits = texts[activeDot].split('/')
+                splits = texts[activeDot].split('\n')
             else:
                 while len(texts) - 1 < activeDot:
                     texts.append("")
-                splits = texts[activeDot].split('/')
+                splits = texts[activeDot].split('\n')
             text = []
             textRect = []
             for i in range(0, len(splits)):
@@ -88,6 +106,7 @@ def render():
 
 img = py.image.load("fll2.bmp")
 img = py.transform.scale(img, (1456, 1008))
+
 screen = py.display.set_mode((scrW, scrH), py.RESIZABLE)
 py.display.set_caption('KepLErGO Editor')
 bckgrnd = py.Surface((800, 450))
@@ -102,7 +121,7 @@ while running:
                 if event.key == py.K_BACKSPACE:
                     texts[activeDot] = texts[activeDot][:-1]
                 elif event.key == py.K_RETURN:
-                    texts[activeDot] += '/'
+                    texts[activeDot] += '\n'
                 else:
                     texts[activeDot] += event.unicode
             elif  manualAdd:
@@ -127,6 +146,10 @@ while running:
                 if event.key == py.K_a:
                     manualType = ""
                     manualAdd = True
+        if event.type == py.KEYUP:
+            if not manualAdd and not len(rectangle) > 1:
+                if event.key == py.K_e:
+                    export()
         if event.type == py.QUIT:
             running = False
 
