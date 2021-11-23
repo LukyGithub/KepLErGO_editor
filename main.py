@@ -32,7 +32,7 @@ py.init()
 #print(open("editableTest.txt", 'r').read())
 def chooseDir():
     top = tkinter.Tk()
-    top.withdraw()  # hide window
+    top.withdraw()
     fileName = tkinter.filedialog.asksaveasfilename(parent = top, filetypes=(("Text files", "*.txt"), ("Prolog files", "*.pl *.pro"), ("All files", "*.*")))
     top.destroy()
     return(fileName)
@@ -124,6 +124,9 @@ while running:
                     texts[activeDot] += '\n'
                 else:
                     texts[activeDot] += event.unicode
+                    texts[activeDot] = texts[activeDot].replace("Goto", "goto")
+                    texts[activeDot] = texts[activeDot].replace("GoTo", "goto")
+                    print(texts[activeDot])
             elif  manualAdd:
                 if event.key == py.K_BACKSPACE:
                     manualType = manualType[:-1]
