@@ -172,6 +172,14 @@ while running:
                     export()
                 if event.key == py.K_l:
                     showLines = not showLines
+            if event.key == py.K_c and not pressing and len(rectangle) < 1:
+                pressing = True
+                for i in range(0, len(circlesX)):
+                    if(py.mouse.get_pos()[0] > circlesX[i] - 5 and py.mouse.get_pos()[0] < circlesX[i] + 5):
+                        if(py.mouse.get_pos()[1] > circlesY[i] - 5 and py.mouse.get_pos()[1] < circlesY[i] + 5):
+                            activeDot = i
+                            rectangle.append(py.mouse.get_pos()[0])
+                            rectangle.append(py.mouse.get_pos()[1])
         if event.type == py.QUIT:
             running = False
 
