@@ -71,18 +71,17 @@ def load(directory):
             print("Some error occured whilst deleting existing points.")
     textLines = open(directory, 'r')
     textLines = textLines.read().split("\n")
-    for i in range(0, len(textLines)):
-        try:
-            if textLines[i][0] == "g":
-                subsplit = circlesX[i].replace("goto(", "")
-                subsplit = subsplit.replace(")", "")
-                subsplit = subsplit.split(", ", "")
-                circlesX.append(subsplit[0])
-                circlesY.append(subsplit[1])
-            else:
-                texts.append(textLines[i])
-        except Exception as e:
-            print(e)
+    for i in range(0, len(textLines) - 1):
+        print(i)
+        localLine = textLines[i]
+        if localLine[0] == 'g':
+            subsplit = textLines[i].replace("goto(", "")
+            subsplit = subsplit.replace(")", "")
+            subsplit = subsplit.split(", ")
+            circlesX.append(subsplit[0])
+            circlesY.append(subsplit[1])
+        else:
+            texts.append(textLines[i])
 
         
         
@@ -195,14 +194,14 @@ while running:
                     except:
                         print("You cannot destroy objects that dont exist!")
                 if event.key == py.K_p:
-                    print(texts)
+                    print(circlesX, circlesY)
                 if event.key == py.K_a:
                     manualType = ""
                     manualAdd = True
         if event.type == py.KEYUP:
             if not manualAdd and not len(rectangle) > 1:
                 if event.key == py.K_e:
-                    chooseDir()
+                    export()
                 if event.key == py.K_l:
                     showLines = not showLines
                 if event.key == py.K_c and not pressing and len(rectangle) < 1:
