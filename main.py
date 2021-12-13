@@ -30,6 +30,7 @@ manualAdd = False
 manualType = ""
 robotSpeed = 10
 showLines = False
+showPos = False
 
 py.init()
 #print(open("editableTest.txt", 'r').read())
@@ -69,17 +70,21 @@ def load(directory):
             texts.pop()
         except:
             print("Some error occured whilst deleting existing points.")
-    textLines = open(directory, 'r')
-    textLines = textLines.read().split("\n")
+    textLine = open(directory, 'r')
+    textLines = textLine.read().split("\n")
     for i in range(0, len(textLines) - 1):
-        print(i)
+        #x = (x-109)/5.32 y = abs(y-777)/5.32
         localLine = textLines[i]
         if localLine[0] == 'g':
             subsplit = textLines[i].replace("goto(", "")
             subsplit = subsplit.replace(")", "")
             subsplit = subsplit.split(", ")
-            circlesX.append(subsplit[0])
-            circlesY.append(subsplit[1])
+            subsplit[0] = float(subsplit[0]) * 5.32 + 109
+            subsplit[1] = -(float(subsplit[1]) * 5.32) + 777
+            circlesX.append(round(subsplit[0], 2))
+            circlesY.append(round(subsplit[1], 2))
+            print(circlesX[:])
+            print(circlesY[:])
         else:
             texts.append(textLines[i])
 
@@ -143,6 +148,10 @@ def render():
                 xpos = rectangle[0] + 5
                 textRect[i] = (xpos , rectangle[1] + lineSpacing * i)
                 screen.blit(text[i], textRect[i])
+        if showPos:
+            for i in range(0, len(circlesX) - 1):
+                posText = font.render(str(round(circlesX[i])) + ", " + str(round(circlesY[i])), True, SubCol)
+                screen.blit(posText, (circlesX[i], circlesY[i] - 10))
     if manualAdd:
         newrect = py.Rect(scrW / 2, scrH / 2, 200, 50)
         py.draw.rect(screen, MenuCol, newrect)
@@ -194,7 +203,7 @@ while running:
                     except:
                         print("You cannot destroy objects that dont exist!")
                 if event.key == py.K_p:
-                    print(circlesX, circlesY)
+                    showPos = not showPos
                 if event.key == py.K_a:
                     manualType = ""
                     manualAdd = True
