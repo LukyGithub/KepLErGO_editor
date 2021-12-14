@@ -17,7 +17,8 @@ menuWidth = 200
 menuHeight = 300
 fontSize = 24
 
-running = True #Variables
+#Variables
+running = True 
 pressing = False
 circleSize = 10
 circlesX = []
@@ -31,6 +32,8 @@ manualType = ""
 robotSpeed = 10
 showLines = False
 showPos = False
+currentLayer = 0
+layerDetails = []
 
 py.init()
 #print(open("editableTest.txt", 'r').read())
@@ -93,9 +96,16 @@ def load(directory):
 def render():
     screen.blit(img, (0, 0))
     if len(circlesX) > 0:
-        for lol in range(0, len(circlesX)):
-            py.draw.circle(screen, MainCol, (circlesX[lol], circlesY[lol]), circleSize)
-        for i in range(0, len(circlesX) - 1):
+        if currentLayer > 0 and len(circlesX) > 0:
+            try:
+                for lol in range(layerDetails[currentLayer - 1][-1], layerDetails[currentLayer][-1]):
+                    py.draw.circle(screen, MainCol, (circlesX[lol], circlesY[lol]), circleSize)
+            except:
+                py.draw.circle(screen, MainCol, (circlesX[layerDetails[currentLayer-1][-1]], circlesY[layerDetails[currentLayer-1][-1]]), circleSize)
+        else:
+            for lol in range(0, layerDetails[currentLayer][-1] + 1):
+                py.draw.circle(screen, MainCol, (circlesX[lol], circlesY[lol]), circleSize)
+        for i in range(layerDetails[currentLayer][0], layerDetails[currentLayer][-1]):
             py.draw.aaline(screen, MainCol, (circlesX[i], circlesY[i]), (circlesX[i + 1], circlesY[i + 1]))
 
             calculated = [0, 0, 0, 0, 0]
@@ -162,6 +172,7 @@ def render():
 
     py.display.flip()
 
+#Do before the program starts
 img = py.image.load("fll2.bmp")
 img = py.transform.scale(img, (1456, 1008))
 
@@ -171,6 +182,8 @@ bckgrnd = py.Surface((800, 450))
 font = py.font.Font('Roboto-Regular.ttf', fontSize)
 icon = py.image.load("icon.bmp")
 py.display.set_icon(icon)
+for i in range(0, 9):
+    layerDetails.append([])
 
 while running:
     for event in py.event.get():
@@ -209,6 +222,11 @@ while running:
                     manualAdd = True
         if event.type == py.KEYUP:
             if not manualAdd and not len(rectangle) > 1:
+                if event.key == py.K_UP:
+                    print(layerDetails)
+                    currentLayer += 1
+                if event.key == py.K_DOWN:
+                    currentLayer -= 1
                 if event.key == py.K_e:
                     export()
                 if event.key == py.K_l:
@@ -232,6 +250,7 @@ while running:
         pressing = True
         circlesX.append(py.mouse.get_pos()[0])
         circlesY.append(py.mouse.get_pos()[1])
+        layerDetails[currentLayer].append(len(circlesX)-1)
         if len(circlesX) > 1:
             py.draw.aaline(screen, MainCol, (circlesX[len(circlesX) - 1], circlesY[len(circlesY) - 1] ), (circlesX[len(circlesX) - 2], circlesY[len(circlesY) - 2]))
     if py.mouse.get_pressed(3)[2] and not pressing and len(rectangle) < 1:
