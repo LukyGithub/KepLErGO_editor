@@ -7,6 +7,7 @@ from math import fabs
 
 MainCol = [155, 89, 182] #Color paletete
 SubCol = [50, 0, 80]
+layerCol = [(26, 188, 15), (52, 152, 219), (155, 89, 182), (241, 196, 15), (231, 76, 60), (230, 126, 34), (46, 204, 113)]
 MenuCol = [52, 152, 219]
 TextCol = [0, 0, 0]
 transparent = [0, 0, 0, 0]
@@ -62,6 +63,7 @@ def export():
             #x = (x-109)/5.32 y = abs(y-777)/5.32
             fileDir.write("goto(" + str(round((circlesX[i-1] - 109) / 5.32, 2)) + ", " + str(round(fabs(circlesY[i-1] - 777) / 5.32, 2)) + ", " + str(round((circlesX[i] - 109) / 5.32, 2)) + ", " + str(round(fabs(circlesY[i] - 777) / 5.32, 2)) + ")\n")
             fileDir.write(texts[i] + "\n")
+        fileDir.write("#" + str(layerDetails))
     except:
         print("An unexpected error ocured")
 
@@ -75,7 +77,7 @@ def load(directory):
             print("Some error occured whilst deleting existing points.")
     textLine = open(directory, 'r')
     textLines = textLine.read().split("\n")
-    for i in range(0, len(textLines) - 1):
+    for i in range(0, len(textLines) - 2):
         #x = (x-109)/5.32 y = abs(y-777)/5.32
         localLine = textLines[i]
         if localLine[0] == 'g':
@@ -90,51 +92,64 @@ def load(directory):
             print(circlesY[:])
         else:
             texts.append(textLines[i])
+    for i in range(1, len(layerDetails)):
+        layerDetails.pop()
+    loadLayers(textLines[-1])
+        
+def loadLayers(text):
+    layerint = text.replace("#[", "")
+    layerint = layerint.replace("]]", "]")
+    layerint = layerint.split("], ")
+    for i  in range(0, len(layerint)):
+        layerint[i] = layerint[i].replace("[", '')
+        layerint[i] = layerint[i].split(", ")
+        for b in range(0, len(layerint[i])):
+            try:
+                layerint[i][b] =int(layerint[i][b])
+            except:
+                layerint[i][b] = None
 
-        
-        
 def render():
     screen.blit(img, (0, 0))
+    layerText = bigFont.render("layer = " + str(currentLayer) + "/6", True, layerCol[0])
+    screen.blit(layerText, (600, 105))
     if len(circlesX) > 0:
-        if currentLayer > 0 and len(circlesX) > 0:
-            try:
-                for lol in range(layerDetails[currentLayer - 1][-1], layerDetails[currentLayer][-1]):
-                    py.draw.circle(screen, MainCol, (circlesX[lol], circlesY[lol]), circleSize)
-            except:
-                py.draw.circle(screen, MainCol, (circlesX[layerDetails[currentLayer-1][-1]], circlesY[layerDetails[currentLayer-1][-1]]), circleSize)
-        else:
-            for lol in range(0, layerDetails[currentLayer][-1] + 1):
-                py.draw.circle(screen, MainCol, (circlesX[lol], circlesY[lol]), circleSize)
-        for i in range(layerDetails[currentLayer][0], layerDetails[currentLayer][-1]):
-            py.draw.aaline(screen, MainCol, (circlesX[i], circlesY[i]), (circlesX[i + 1], circlesY[i + 1]))
-
-            calculated = [0, 0, 0, 0, 0]
-            calculated[0] = (circlesX[i] + circlesX[i + 1]) /2
-            calculated[1] = (circlesY[i] + circlesY[i + 1]) /2
-            calculated[2] = circlesX[i] - circlesX[i + 1]
-            calculated[3] = circlesY[i] - circlesY[i + 1]
-            calculated[4] = sqrt(calculated[2]**2 + calculated[3]**2)
-            py.draw.aaline(screen, MainCol, (circlesX[i], circlesY[i]), (circlesX[i + 1], circlesY[i + 1]))
-
-            calculated = [0, 0, 0, 0, 0]
-            calculated[0] = (circlesX[i] + circlesX[i + 1]) /2
-            calculated[1] = (circlesY[i] + circlesY[i + 1]) /2
-            calculated[2] = circlesX[i] - circlesX[i + 1]
-            calculated[3] = circlesY[i] - circlesY[i + 1]
-            calculated[4] = sqrt(calculated[2]**2 + calculated[3]**2)
-            lineText = font.render(str(round(calculated[4] / 5.32, 2)), True, SubCol)
-            if calculated[2] > 0 or calculated[3] > 0:
-                if calculated[0] > calculated[1]:
-                    lineRect = (calculated[0], calculated[1] + 25)
-                else:
-                    lineRect = (calculated[0] + 25, calculated[1])
+        if len(layerDetails[currentLayer]) > 0 or len(layerDetails[currentLayer - 1]) > 0:
+    
+            if currentLayer > 0:
+                try:
+                    for lol in range(layerDetails[currentLayer - 1][-1], layerDetails[currentLayer][-1] + 1):
+                        py.draw.circle(screen, layerCol[currentLayer], (circlesX[lol], circlesY[lol]), circleSize)
+                    for i in range(layerDetails[currentLayer -1][-1], layerDetails[currentLayer][-1]):
+                        py.draw.aaline(screen,  layerCol[currentLayer], (circlesX[i], circlesY[i]), (circlesX[i + 1], circlesY[i + 1]))
+                except:
+                    py.draw.circle(screen, layerCol[currentLayer], (circlesX[layerDetails[currentLayer-1][-1]], circlesY[layerDetails[currentLayer-1][-1]]), circleSize)
             else:
-                if calculated[0] < calculated[1]:
-                    lineRect = (calculated[0], calculated[1])
-                else:
-                    lineRect = (calculated[0] - 25, calculated[1])
-            if showLines:
-                screen.blit(lineText, lineRect)
+                for lol in range(0, layerDetails[currentLayer][-1] + 1):
+                    py.draw.circle(screen, layerCol[currentLayer], (circlesX[lol], circlesY[lol]), circleSize)
+                for i in range(layerDetails[currentLayer][0], layerDetails[currentLayer][-1]):
+                    py.draw.aaline(screen, layerCol[currentLayer], (circlesX[i], circlesY[i]), (circlesX[i + 1], circlesY[i + 1]))
+
+
+                    calculated = [0, 0, 0, 0, 0]
+                    calculated[0] = (circlesX[i] + circlesX[i + 1]) /2
+                    calculated[1] = (circlesY[i] + circlesY[i + 1]) /2
+                    calculated[2] = circlesX[i] - circlesX[i + 1]
+                    calculated[3] = circlesY[i] - circlesY[i + 1]
+                    calculated[4] = sqrt(calculated[2]**2 + calculated[3]**2)
+                    lineText = font.render(str(round(calculated[4] / 5.32, 2)), True, SubCol)
+                    if calculated[2] > 0 or calculated[3] > 0:
+                        if calculated[0] > calculated[1]:
+                            lineRect = (calculated[0], calculated[1] + 25)
+                        else:
+                            lineRect = (calculated[0] + 25, calculated[1])
+                    else:
+                        if calculated[0] < calculated[1]:
+                            lineRect = (calculated[0], calculated[1])
+                        else:
+                            lineRect = (calculated[0] - 25, calculated[1])
+                    if showLines:
+                        screen.blit(lineText, lineRect)
 
         if len(rectangle) > 0:
             getrect = py.Rect(rectangle[0], rectangle[1], menuWidth, menuHeight)
@@ -180,9 +195,10 @@ screen = py.display.set_mode((scrW, scrH), py.RESIZABLE)
 py.display.set_caption('KepLErGO Editor')
 bckgrnd = py.Surface((800, 450))
 font = py.font.Font('Roboto-Regular.ttf', fontSize)
+bigFont = py.font.Font('Roboto-Regular.ttf', 45)
 icon = py.image.load("icon.bmp")
 py.display.set_icon(icon)
-for i in range(0, 9):
+for i in range(0, 10):
     layerDetails.append([])
 
 while running:
@@ -213,6 +229,7 @@ while running:
                     try:
                         circlesX.pop()
                         circlesY.pop()
+                        layerDetails[currentLayer].pop()
                     except:
                         print("You cannot destroy objects that dont exist!")
                 if event.key == py.K_p:
@@ -223,10 +240,11 @@ while running:
         if event.type == py.KEYUP:
             if not manualAdd and not len(rectangle) > 1:
                 if event.key == py.K_UP:
-                    print(layerDetails)
-                    currentLayer += 1
+                    if currentLayer < 6: 
+                        currentLayer += 1
                 if event.key == py.K_DOWN:
-                    currentLayer -= 1
+                    if currentLayer > 0:
+                        currentLayer -= 1
                 if event.key == py.K_e:
                     export()
                 if event.key == py.K_l:
