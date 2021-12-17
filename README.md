@@ -19,12 +19,12 @@ Done:
 - [x] Converting pixelspace into map relative space
 - [x] Show how long travel lines take
 - [x] Make an icon for the app
+- [x] Load map info
+- [x] Make layers (to make it more pleasing to look at)
 
 Todo:
 
 - [ ] Zooming in and out on the map
-- [ ] Load map info
-- [ ] Make layers (to make it more pleasing to look at)
 
 Optional:
 

@@ -35,6 +35,8 @@ showLines = False
 showPos = False
 currentLayer = 0
 layerDetails = []
+editmode = False
+moving = [False, 0]
 
 py.init()
 #print(open("editableTest.txt", 'r').read())
@@ -68,33 +70,35 @@ def export():
         print("An unexpected error ocured")
 
 def load(directory):
+    global layerDetails
     for i in range(0, len(circlesX)):
         try:
             circlesX.pop()
             circlesY.pop()
             texts.pop()
-        except:
-            print("Some error occured whilst deleting existing points.")
+        except Exception as e:
+            print("Some error occured whilst deleting existing points: " + str(e))
     textLine = open(directory, 'r')
     textLines = textLine.read().split("\n")
     for i in range(0, len(textLines) - 2):
         #x = (x-109)/5.32 y = abs(y-777)/5.32
         localLine = textLines[i]
-        if localLine[0] == 'g':
-            subsplit = textLines[i].replace("goto(", "")
-            subsplit = subsplit.replace(")", "")
-            subsplit = subsplit.split(", ")
-            subsplit[0] = float(subsplit[0]) * 5.32 + 109
-            subsplit[1] = -(float(subsplit[1]) * 5.32) + 777
-            circlesX.append(round(subsplit[0], 2))
-            circlesY.append(round(subsplit[1], 2))
-            print(circlesX[:])
-            print(circlesY[:])
-        else:
-            texts.append(textLines[i])
-    for i in range(1, len(layerDetails)):
+        if len(localLine) > 0:
+            if localLine[0] == 'g':
+                subsplit = textLines[i].replace("goto(", "")
+                subsplit = subsplit.replace(")", "")
+                subsplit = subsplit.split(", ")
+                subsplit[0] = float(subsplit[0]) * 5.32 + 109
+                subsplit[1] = -(float(subsplit[1]) * 5.32) + 777
+                circlesX.append(round(subsplit[0], 2))
+                circlesY.append(round(subsplit[1], 2))
+                print(circlesX[:])
+                print(circlesY[:])
+            else:
+                texts.append(textLines[i])
+    for i in range(0, len(layerDetails)):
         layerDetails.pop()
-    loadLayers(textLines[-1])
+    layerDetails = loadLayers(textLines[-1])
         
 def loadLayers(text):
     layerint = text.replace("#[", "")
@@ -108,11 +112,14 @@ def loadLayers(text):
                 layerint[i][b] =int(layerint[i][b])
             except:
                 layerint[i][b] = None
+    return(layerint)
 
 def render():
     screen.blit(img, (0, 0))
     layerText = bigFont.render("layer = " + str(currentLayer) + "/6", True, layerCol[0])
+    escMode = bigFont.render(", Edit= " + str(editmode), True, layerCol[0])
     screen.blit(layerText, (600, 105))
+    screen.blit(escMode, (825, 105))
     if len(circlesX) > 0:
         if len(layerDetails[currentLayer]) > 0 or len(layerDetails[currentLayer - 1]) > 0:
     
@@ -239,6 +246,8 @@ while running:
                     manualAdd = True
         if event.type == py.KEYUP:
             if not manualAdd and not len(rectangle) > 1:
+                if event.key == py.K_ESCAPE:
+                    editmode = not editmode
                 if event.key == py.K_UP:
                     if currentLayer < 6: 
                         currentLayer += 1
@@ -264,18 +273,29 @@ while running:
             running = False
 
     if py.mouse.get_pressed(3)[0] and not pressing:
-        py.draw.circle(screen, MainCol,py.mouse.get_pos(), circleSize)
-        pressing = True
-        circlesX.append(py.mouse.get_pos()[0])
-        circlesY.append(py.mouse.get_pos()[1])
-        layerDetails[currentLayer].append(len(circlesX)-1)
-        if len(circlesX) > 1:
-            py.draw.aaline(screen, MainCol, (circlesX[len(circlesX) - 1], circlesY[len(circlesY) - 1] ), (circlesX[len(circlesX) - 2], circlesY[len(circlesY) - 2]))
+        if editmode:
+            pressing = True
+            if moving[0]:
+                moving[0] = False
+                circlesX[moving[1]] = py.mouse.get_pos()[0]
+                circlesY[moving[1]] = py.mouse.get_pos()[1]
+            else:
+                for i in range(0, len(circlesX)):
+                    if(py.mouse.get_pos()[0] > circlesX[i] - circleSize and py.mouse.get_pos()[0] < circlesX[i] + circleSize):
+                        if(py.mouse.get_pos()[1] > circlesY[i] - circleSize and py.mouse.get_pos()[1] < circlesY[i] + circleSize):
+                            moving[0] = True
+                            moving[1] = i
+        else:
+            py.draw.circle(screen, MainCol,py.mouse.get_pos(), circleSize)
+            pressing = True
+            circlesX.append(py.mouse.get_pos()[0])
+            circlesY.append(py.mouse.get_pos()[1])
+            layerDetails[currentLayer].append(len(circlesX)-1)
     if py.mouse.get_pressed(3)[2] and not pressing and len(rectangle) < 1:
         pressing = True
         for i in range(0, len(circlesX)):
-            if(py.mouse.get_pos()[0] > circlesX[i] - 5 and py.mouse.get_pos()[0] < circlesX[i] + 5):
-                if(py.mouse.get_pos()[1] > circlesY[i] - 5 and py.mouse.get_pos()[1] < circlesY[i] + 5):
+            if(py.mouse.get_pos()[0] > circlesX[i] - circleSize and py.mouse.get_pos()[0] < circlesX[i] + circleSize):
+                if(py.mouse.get_pos()[1] > circlesY[i] - circleSize and py.mouse.get_pos()[1] < circlesY[i] + circleSize):
                     activeDot = i
                     rectangle.append(py.mouse.get_pos()[0])
                     rectangle.append(py.mouse.get_pos()[1])
