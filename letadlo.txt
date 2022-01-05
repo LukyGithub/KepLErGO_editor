@@ -1,0 +1,7 @@
+resetUseMotors()
+goto(27.44, 14.85, 27.44, 72.18)
+
+goto(27.44, 72.18, 19.17, 79.51)
+UseMotorL.run_angle(120)
+ev3.speaker.beep()
+#[[0, 1, 2], [], [], [], [], [], [], [], [], []]

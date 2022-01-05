@@ -37,6 +37,9 @@ currentLayer = 0
 layerDetails = []
 editmode = False
 moving = [False, 0]
+newline = True
+togglePreview = True
+previewRotation = 0
 
 py.init()
 #print(open("editableTest.txt", 'r').read())
@@ -71,6 +74,7 @@ def export():
 
 def load(directory):
     global layerDetails
+    global newline
     for i in range(0, len(circlesX)):
         try:
             circlesX.pop()
@@ -80,25 +84,40 @@ def load(directory):
             print("Some error occured whilst deleting existing points: " + str(e))
     textLine = open(directory, 'r')
     textLines = textLine.read().split("\n")
-    for i in range(0, len(textLines) - 2):
+    print(textLines)
+    for i in range(0, len(textLines)-1):
         #x = (x-109)/5.32 y = abs(y-777)/5.32
         localLine = textLines[i]
         if len(localLine) > 0:
             if localLine[0] == 'g':
+                newline = True
                 subsplit = textLines[i].replace("goto(", "")
                 subsplit = subsplit.replace(")", "")
                 subsplit = subsplit.split(", ")
                 subsplit[0] = float(subsplit[0]) * 5.32 + 109
                 subsplit[1] = -(float(subsplit[1]) * 5.32) + 777
-                circlesX.append(round(subsplit[0], 2))
-                circlesY.append(round(subsplit[1], 2))
+                subsplit[2] = float(subsplit[2]) * 5.32 + 109
+                subsplit[3] = -(float(subsplit[3]) * 5.32) + 777
+                if i == 1:
+                    circlesX.append(round(subsplit[0], 2))
+                    circlesY.append(round(subsplit[1], 2))
+                circlesX.append(round(subsplit[2], 2))
+                circlesY.append(round(subsplit[3], 2))
+                print(i)
                 print(circlesX[:])
                 print(circlesY[:])
             else:
-                texts.append(textLines[i])
+                if newline:
+                    texts.append(textLines[i])
+                    newline = False
+                else:
+                    texts[-1] += "\n" + textLines[i] 
+        else:
+            texts.append("")
     for i in range(0, len(layerDetails)):
         layerDetails.pop()
     layerDetails = loadLayers(textLines[-1])
+    print(layerDetails)
         
 def loadLayers(text):
     layerint = text.replace("#[", "")
@@ -132,7 +151,7 @@ def render():
                 except:
                     py.draw.circle(screen, layerCol[currentLayer], (circlesX[layerDetails[currentLayer-1][-1]], circlesY[layerDetails[currentLayer-1][-1]]), circleSize)
             else:
-                for lol in range(0, layerDetails[currentLayer][-1] + 1):
+                for lol in range(0, layerDetails[currentLayer][-1] +1):
                     py.draw.circle(screen, layerCol[currentLayer], (circlesX[lol], circlesY[lol]), circleSize)
                 for i in range(layerDetails[currentLayer][0], layerDetails[currentLayer][-1]):
                     py.draw.aaline(screen, layerCol[currentLayer], (circlesX[i], circlesY[i]), (circlesX[i + 1], circlesY[i + 1]))
@@ -190,7 +209,8 @@ def render():
         manualText = font.render(manualType, True, TextCol)
         manualRect = (scrW / 2, scrH / 2)
         screen.blit(manualText, manualRect)
-                
+    if togglePreview:
+        screen.blit(robot1, (py.mouse.get_pos()[0]-40, py.mouse.get_pos()[1]-92))                    
 
     py.display.flip()
 
@@ -205,6 +225,8 @@ font = py.font.Font('Roboto-Regular.ttf', fontSize)
 bigFont = py.font.Font('Roboto-Regular.ttf', 45)
 icon = py.image.load("icon.bmp")
 py.display.set_icon(icon)
+robot1 = py.image.load("cropped_robot_nobg2.bmp")
+robot1 = py.transform.scale(robot1, (81, 141))
 for i in range(0, 10):
     layerDetails.append([])
 
@@ -268,6 +290,13 @@ while running:
                                 rectangle.append(py.mouse.get_pos()[1])
                 if event.key == py.K_m:
                     load(chooseDir())
+                if event.key == py.K_t:
+                    togglePreview = not togglePreview
+                if event.key == py.K_RIGHT:
+                    robot1 = py.transform.rotate(robot1, -45)
+                    robot1.get_rect(center=robot1.rect.center)
+                if event.key == py.K_LEFT:
+                    robot1 = py.transform.rotate(robot1, 45)
             
         if event.type == py.QUIT:
             running = False
