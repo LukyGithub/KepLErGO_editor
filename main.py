@@ -1,4 +1,5 @@
 import pygame as py
+import time
 import tkinter
 import tkinter.filedialog
 from math import sqrt
@@ -211,7 +212,7 @@ def render():
         screen.blit(manualText, manualRect)
     if togglePreview:
         screen.blit(robot1, (py.mouse.get_pos()[0]-40, py.mouse.get_pos()[1]-92))                    
-
+    py.time.Clock().tick(60)
     py.display.flip()
 
 #Do before the program starts
