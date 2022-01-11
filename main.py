@@ -39,8 +39,9 @@ layerDetails = []
 editmode = False
 moving = [False, 0]
 newline = True
-togglePreview = True
-previewRotation = 0
+togglePreview = False
+previewAngle = 0
+robotRotated = None
 
 py.init()
 #print(open("editableTest.txt", 'r').read())
@@ -140,6 +141,8 @@ def render():
     escMode = bigFont.render(", Edit= " + str(editmode), True, layerCol[0])
     screen.blit(layerText, (600, 105))
     screen.blit(escMode, (825, 105))
+    if togglePreview:
+        screen.blit(robotRotated, (py.mouse.get_pos()[0]-40, py.mouse.get_pos()[1]-92))  
     if len(circlesX) > 0:
         if len(layerDetails[currentLayer]) > 0 or len(layerDetails[currentLayer - 1]) > 0:
     
@@ -209,9 +212,7 @@ def render():
         py.draw.rect(screen, MenuCol, newrect)
         manualText = font.render(manualType, True, TextCol)
         manualRect = (scrW / 2, scrH / 2)
-        screen.blit(manualText, manualRect)
-    if togglePreview:
-        screen.blit(robot1, (py.mouse.get_pos()[0]-40, py.mouse.get_pos()[1]-92))                    
+        screen.blit(manualText, manualRect)                  
     py.time.Clock().tick(60)
     py.display.flip()
 
@@ -230,6 +231,7 @@ robot1 = py.image.load("cropped_robot_nobg2.bmp")
 robot1 = py.transform.scale(robot1, (81, 141))
 for i in range(0, 10):
     layerDetails.append([])
+robotRotated = py.transform.rotate(robot1, previewAngle)
 
 while running:
     for event in py.event.get():
@@ -251,6 +253,7 @@ while running:
                     splices = manualType.split(', ')
                     circlesX.append((int(splices[0]) * 5.32) + 109)
                     circlesY.append(fabs(int(splices[1]) * 5.32 - 777))
+                    layerDetails[currentLayer].append(len(circlesX)-1)
                     manualAdd = False
                 else:
                     manualType += event.unicode
@@ -264,6 +267,8 @@ while running:
                         print("You cannot destroy objects that dont exist!")
                 if event.key == py.K_p:
                     showPos = not showPos
+                if event.key == py.K_o:
+                    print(str(circlesX) + ", " + str(circlesY))
                 if event.key == py.K_a:
                     manualType = ""
                     manualAdd = True
@@ -294,11 +299,11 @@ while running:
                 if event.key == py.K_t:
                     togglePreview = not togglePreview
                 if event.key == py.K_RIGHT:
-                    robot1 = py.transform.rotate(robot1, -45)
-                    robot1.get_rect(center=robot1.rect.center)
+                    previewAngle -= 5
+                    robotRotated = py.transform.rotate(robot1, previewAngle)
                 if event.key == py.K_LEFT:
-                    robot1 = py.transform.rotate(robot1, 45)
-            
+                    previewAngle += 5
+                    robotRotated = py.transform.rotate(robot1, previewAngle)
         if event.type == py.QUIT:
             running = False
 
