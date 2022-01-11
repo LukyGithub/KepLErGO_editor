@@ -68,7 +68,7 @@ def export():
             while len(texts) - 1 < i:
                 texts.append("")
             #x = (x-109)/5.32 y = abs(y-777)/5.32
-            fileDir.write("goto(" + str(round((circlesX[i-1] - 109) / 5.32, 2)) + ", " + str(round(fabs(circlesY[i-1] - 777) / 5.32, 2)) + ", " + str(round((circlesX[i] - 109) / 5.32, 2)) + ", " + str(round(fabs(circlesY[i] - 777) / 5.32, 2)) + ")\n")
+            fileDir.write("goto(" + str(round((circlesX[i-1] - 109) / 5.7, 2)) + ", " + str(round(fabs(circlesY[i-1] - 777) / 5.7, 2)) + ", " + str(round((circlesX[i] - 109) / 5.7, 2)) + ", " + str(round(fabs(circlesY[i] - 777) / 5.7, 2)) + ")\n")
             fileDir.write(texts[i] + "\n")
         fileDir.write("#" + str(layerDetails))
     except:
@@ -96,10 +96,10 @@ def load(directory):
                 subsplit = textLines[i].replace("goto(", "")
                 subsplit = subsplit.replace(")", "")
                 subsplit = subsplit.split(", ")
-                subsplit[0] = float(subsplit[0]) * 5.32 + 109
-                subsplit[1] = -(float(subsplit[1]) * 5.32) + 777
-                subsplit[2] = float(subsplit[2]) * 5.32 + 109
-                subsplit[3] = -(float(subsplit[3]) * 5.32) + 777
+                subsplit[0] = float(subsplit[0]) * 5.7 + 109
+                subsplit[1] = -(float(subsplit[1]) * 5.7) + 777
+                subsplit[2] = float(subsplit[2]) * 5.7 + 109
+                subsplit[3] = -(float(subsplit[3]) * 5.7) + 777
                 if i == 1:
                     circlesX.append(round(subsplit[0], 2))
                     circlesY.append(round(subsplit[1], 2))
@@ -167,7 +167,7 @@ def render():
                     calculated[2] = circlesX[i] - circlesX[i + 1]
                     calculated[3] = circlesY[i] - circlesY[i + 1]
                     calculated[4] = sqrt(calculated[2]**2 + calculated[3]**2)
-                    lineText = font.render(str(round(calculated[4] / 5.32, 2)), True, SubCol)
+                    lineText = font.render(str(round(calculated[4] / 5.7, 2)), True, SubCol)
                     if calculated[2] > 0 or calculated[3] > 0:
                         if calculated[0] > calculated[1]:
                             lineRect = (calculated[0], calculated[1] + 25)
@@ -227,8 +227,8 @@ font = py.font.Font('Roboto-Regular.ttf', fontSize)
 bigFont = py.font.Font('Roboto-Regular.ttf', 45)
 icon = py.image.load("icon.bmp")
 py.display.set_icon(icon)
-robot1 = py.image.load("cropped_robot_nobg2.bmp")
-robot1 = py.transform.scale(robot1, (81, 141))
+robot1 = py.image.load("robotCropped.bmp")
+robot1 = py.transform.scale(robot1, (108, 185))
 for i in range(0, 10):
     layerDetails.append([])
 robotRotated = py.transform.rotate(robot1, previewAngle)
@@ -251,8 +251,8 @@ while running:
                     manualType = manualType[:-1]
                 elif event.key == py.K_RETURN:
                     splices = manualType.split(', ')
-                    circlesX.append((int(splices[0]) * 5.32) + 109)
-                    circlesY.append(fabs(int(splices[1]) * 5.32 - 777))
+                    circlesX.append((int(splices[0]) * 5.7) + 109)
+                    circlesY.append(fabs(int(splices[1]) * 5.7 - 777))
                     layerDetails[currentLayer].append(len(circlesX)-1)
                     manualAdd = False
                 else:
